@@ -2,7 +2,7 @@ import {createAgent} from "langchain";
 import "dotenv/config"
 
 const agent = createAgent(
-    {model: "claude-sonnet-4-6"}
+    {model: "claude-haiku-4-5-20251001"}
     );
 
 const response = await agent.invoke({
