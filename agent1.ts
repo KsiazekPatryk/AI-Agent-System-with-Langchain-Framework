@@ -17,20 +17,30 @@ const getWeather = tool( ()=>{
     }
 );
 
-
+const getTime = tool( (input)=> {
+    return 'The current time in ${input.city} is 3:00 PM'
+     },
+     {
+        name : "get_time",
+        description: "Get the current time",
+        schema: z.object({
+            city: z.string()
+        })
+    }
+)
 
 const agent = createAgent(
     {model: "claude-haiku-4-5-20251001",
-     tools: [getWeather],
+     tools: [getWeather, getTime],
     },
     );
 
 const response = await agent.invoke({
-    messages: 
-    [{role: "user", content: "What is weather in New York?"}]
+    //messages: [{role: "user", content: "What is weather in New York?"}]
+    messages: [{role: "user", content: "What is the current time in New York?"}]
 });
-//console.log(response);
-const longMessages = response.messages[response.messages.length-1].content
-console.log(longMessages);
+console.log(response);
+//const longMessages = response.messages[response.messages.length-1].content
+//console.log(longMessages);
 
 
