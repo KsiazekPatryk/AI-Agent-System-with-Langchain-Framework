@@ -92,3 +92,38 @@ An AI agent with a **humorous weather-forecaster persona** that uses a system pr
 ```bash
 npx ts-node agent3.ts
 ```
+
+---
+
+## Agent4
+
+An AI agent that adds **conversational memory** on top of Agent3, using a LangGraph `MemorySaver` checkpointer so the agent remembers earlier turns within the same thread. It also configures the model explicitly via `initChatModel`.
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `get_user_location` | Returns the user's location based on `user_id` from context (currently mocked: user `"1"` → `"Florida"`, otherwise `"SFO"`) |
+| `getWeather` | Returns the weather for a given city (currently mocked: "Its sunny in {city}") |
+
+### How it works
+
+1. Builds the model with `initChatModel("claude-haiku-4-5-20251001", { temperature: 0.7, timeout: 30, max_tokens: 1000 })` for explicit control over model parameters.
+2. Creates a `MemorySaver` checkpointer and passes it to `createAgent` so conversation state is persisted per thread.
+3. Each `invoke` passes a `config` with `configurable.thread_id` — this is **required** when a checkpointer is used, as it tells the checkpointer which conversation thread to persist.
+4. The first two calls (`"What is the weather outside?"` then `"What location did you tell me about?"`) share the same `thread_id`, so the agent remembers the resolved location across turns.
+5. The third call (`"Suggest me good places in that location"`) demonstrates how memory is keyed by `thread_id` — different configs (`config` vs `qaConfig`) represent different conversation threads and contexts.
+6. Each response is read from the last message (`response.messages[...].content`) and logged.
+
+### Notes
+
+- A checkpointer (`MemorySaver`) gives the agent **memory across invocations** within the same thread.
+- **Every** `invoke` must include `configurable.thread_id` when a checkpointer is attached, otherwise it throws `Failed to put checkpoint ... missing a required "thread_id"`.
+- `config` and `qaConfig` carry both a `thread_id` (which conversation) and `context.user_id` (which user's location to resolve).
+- Tool responses are currently hardcoded — no real database or weather API is connected yet.
+
+### Run
+
+```bash
+npx ts-node agent4.ts
+```
