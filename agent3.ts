@@ -45,7 +45,7 @@ const config = {
 //12,12->city
 
 const qaConfig = {
-    context: {user_id: "3"},
+    context: {user_id: "1"},
     db: {}//qa db    
 }
 
