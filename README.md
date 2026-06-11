@@ -59,3 +59,36 @@ An AI agent that demonstrates a **two-step tool chain**: it first retrieves the 
 ```bash
 npx ts-node agent2.ts
 ```
+
+---
+
+## Agent3
+
+An AI agent with a **humorous weather-forecaster persona** that uses a system prompt to guide its behavior and returns a **structured response** validated by a Zod schema.
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `get_user_location` | Returns the user's location based on `user_id` from context (currently mocked: user `"1"` → `"Florida"`, otherwise `"SFO"`) |
+| `getWeather` | Returns the weather for a given city (currently mocked: "Its sunny in {city}") |
+
+### How it works
+
+1. Creates an agent with the `claude-haiku-4-5-20251001` model, both tools, a `systemPrompt`, and a `responseFormat`.
+2. The `systemPrompt` defines the agent as an expert weather forecaster that speaks with humour and instructs it to determine the location first.
+3. Invokes the agent with `"What is the weather outside?"` and passes a `qaConfig` object containing `user_id`.
+4. The agent calls `get_user_location` to resolve the city, then `getWeather`, and returns the result.
+5. The response is constrained to a Zod schema (`human_response`, `weather_conditions`) and logged via `response.structuredResponse`.
+
+### Notes
+
+- Uses a `systemPrompt` to shape the agent's tone and tool-calling strategy.
+- Uses `responseFormat` (a Zod object) to enforce a **structured response** instead of free-form text.
+- Tool responses are currently hardcoded — no real database or weather API is connected yet.
+
+### Run
+
+```bash
+npx ts-node agent3.ts
+```

@@ -1,4 +1,4 @@
-import { createAgent, tool } from "langchain";
+import { createAgent, initChatModel, tool } from "langchain";
 import z from "zod";
 import "dotenv/config"
 
@@ -54,9 +54,16 @@ const responseFormat = z.object({
     weather_conditions: z.string()
 });
 
+const model = await initChatModel(
+    "claude-haiku-4-5-20251001"
+    {
+        temperature: 0.7, timeout: 30, max_tokens: 1000
+    }
+)
+
 
 const agent = createAgent({
-    model: "claude-haiku-4-5-20251001",
+    model: model,
     tools: [getUserLocation, getWeather],
     systemPrompt,
     responseFormat
