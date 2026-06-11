@@ -6,21 +6,20 @@ const getUserLocation = tool((_,config)=> {
 
     const user_id = config.context.user_id;
     //fire database query to get user location based on user_id
-    user_id === 1 ? "Florida" : "SFO";
+    return user_id === "1" ? "Florida" : "SFO";
 
 },
 {
     name: "get_user_location",
-    description: "Retrieve user information based on User Id",
+    description: "Get the current user's location. Always call this first when the user asks about weather and has not specified a city.",
     schema: z.object({})
 }
 
 );
 
-    const getWeather = tool( ()=>{
-    //${input.city} - by getting weather - returned Sunny
-    return 'Its sunny in ${input.city}'
-    }, 
+    const getWeather = tool( (input)=>{
+    return `Its sunny in ${input.city}`
+    },
     {
     name: "getWeather",
     description: "Get the weather for a given city",
@@ -37,7 +36,7 @@ const config = {
 
 const agent = createAgent({
     model: "claude-haiku-4-5-20251001",
-    tools: []
+    tools: [getUserLocation, getWeather]
 });
 
 const response = await agent.invoke({
@@ -45,6 +44,6 @@ const response = await agent.invoke({
 
 
     ]
-},config)
+},config);
 
 console.log(response);
