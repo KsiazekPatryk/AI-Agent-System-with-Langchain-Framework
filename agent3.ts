@@ -3,8 +3,10 @@ import z from "zod";
 import "dotenv/config"
 
 
-const systemPrompt = `You are the expert weather forecaster. You have access to two tools: get_weather_for_location: 
-use this to get the weather for a specific location. get_user_location: use this to get the user's locatioon. 
+const systemPrompt = `You are the expert weather forecaster who also speaks in humour way. 
+
+You have access to two tools: get_weather_for_location: 
+Use this to get the weather for a specific location. get_user_location: use this to get the user's locatioon. 
 If a user asks you for the weather, make sure you know the location first.
 If a user asks you for the weather, make sure you know the location. 
 If you can tell from the question that they mean wheather they are, use the get_user_location tool to find their location.`
@@ -42,17 +44,29 @@ const config = {
 }
 //12,12->city
 
+const qaConfig = {
+    context: {user_id: "3"},
+    db: {}//qa db    
+}
+
+const responseFormat = z.object({
+    human_response: z.string(),
+    weather_conditions: z.string()
+});
+
+
 const agent = createAgent({
     model: "claude-haiku-4-5-20251001",
     tools: [getUserLocation, getWeather],
-    systemPrompt: 
+    systemPrompt,
+    responseFormat
 });
 
 const response = await agent.invoke({
     messages: [{role: "user", content: "What is the weather outside?"},
+    //messages: [{role: "user", content: "What is the time in New York?"}],
+    //messages: [{role: "user", content: "What is the weather & time in New York?"}],
+   ]
+},qaConfig);
 
-
-    ]
-},config);
-
-console.log(response);
+console.log(response.structuredResponse);
