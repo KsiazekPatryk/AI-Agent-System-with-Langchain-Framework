@@ -37,7 +37,8 @@ const agent = createAgent(
 
 const response = await agent.invoke({
     //messages: [{role: "user", content: "What is weather in New York?"}]
-    messages: [{role: "user", content: "What is the current time in New York?"}]
+    //messages: [{role: "user", content: "What is the current time in New York?"}]
+    messages: [{role: "user", content: "What is weather & time in New York?"}]
 });
 console.log(response);
 //const longMessages = response.messages[response.messages.length-1].content
