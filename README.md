@@ -54,6 +54,16 @@ An AI agent that demonstrates a **two-step tool chain**: it first retrieves the 
 - `getUserLocation` receives `config.context.user_id` via LangChain's runtime config — this is how user context is securely injected into tools.
 - Tool responses are currently hardcoded — no real database or weather API is connected yet.
 
+### Differences from Agent1
+
+| | Agent1 | Agent2 |
+|--|--------|--------|
+| **Tools** | `getWeather`, `getTime` | `getUserLocation`, `getWeather` |
+| **Tool usage** | Independent tools — each answers a separate question | **Chained tools** — the output of one feeds the next |
+| **User input** | The city must be stated in the question (`"...in New York?"`) | The city is **inferred** — the user only asks `"What is the weather outside?"` |
+| **Context** | No context used | Passes a `config` with `user_id`, injected into the tool via `config.context.user_id` |
+| **Key concept** | Basic tool calling | Tool chaining + runtime user context |
+
 ### Run
 
 ```bash
@@ -86,6 +96,16 @@ An AI agent with a **humorous weather-forecaster persona** that uses a system pr
 - Uses a `systemPrompt` to shape the agent's tone and tool-calling strategy.
 - Uses `responseFormat` (a Zod object) to enforce a **structured response** instead of free-form text.
 - Tool responses are currently hardcoded — no real database or weather API is connected yet.
+
+### What Agent3 adds over Agent2
+
+| | Agent3 | Agent2 |
+|--|--------|--------|
+| **System prompt** | Adds a `systemPrompt` defining a humorous expert-forecaster persona and tool strategy | None |
+| **Output format** | **Structured response** validated by a Zod `responseFormat` (`human_response`, `weather_conditions`) | Free-form text answer |
+| **Result access** | Reads `response.structuredResponse` (a typed object) | Reads the final message content |
+| **Tools** | Same tools (`get_user_location`, `getWeather`) — chaining behavior unchanged | `getUserLocation`, `getWeather` |
+| **Key concept** | Persona via system prompt + guaranteed structured output | Tool chaining + runtime context |
 
 ### Run
 
@@ -121,6 +141,17 @@ An AI agent that adds **conversational memory** on top of Agent3, using a LangGr
 - **Every** `invoke` must include `configurable.thread_id` when a checkpointer is attached, otherwise it throws `Failed to put checkpoint ... missing a required "thread_id"`.
 - `config` and `qaConfig` carry both a `thread_id` (which conversation) and `context.user_id` (which user's location to resolve).
 - Tool responses are currently hardcoded — no real database or weather API is connected yet.
+
+### What Agent4 adds over Agent3
+
+| | Agent4 | Agent3 |
+|--|--------|--------|
+| **Memory** | Persists conversation state with a `MemorySaver` checkpointer — remembers earlier turns | Stateless — each `invoke` starts fresh |
+| **Model setup** | Builds the model via `initChatModel(...)` with explicit `temperature`, `timeout`, `max_tokens` | Passes the model id as a string to `createAgent` |
+| **Config** | Requires `configurable.thread_id` on every `invoke` to key the conversation thread | No `thread_id` needed |
+| **Interaction** | Multiple chained `invoke` calls in one run (follow-up questions across turns) | A single `invoke` call |
+| **Result access** | Reads the last message content (`response.messages[...].content`) | Reads `response.structuredResponse` |
+| **Key concept** | Conversational memory + explicit model configuration | Persona + structured output |
 
 ### Run
 
