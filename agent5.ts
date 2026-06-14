@@ -2,6 +2,7 @@ import { createAgent, createMiddleware, initChatModel, tool } from "langchain";
 import z from "zod";
 import "dotenv/config"
 import {MemorySaver} from "@langchain/langgraph"
+import { ChatOpenAI } from "@langchain/openai"
 
 const systemPrompt = `You are the expert weather forecaster who also speaks in humour way. 
 You have access to two tools: get_weather_for_location: 
@@ -40,12 +41,12 @@ const getUserLocation = tool((_,config)=> {
 
 const dynamicModelSelection = createMiddleware({
     name: "dynamicModelSelection",
-    wrapmodelcall: (request, handler) => 
+    wrapModelCall: (request, handler) =>
         {
             const messageCount = request.messages.length;
             return handler({
                 ...request,
-                model: messageCount < 3 ? advanceModel : basicModel;
+                model: messageCount < 3 ? advanceModel : basicModel
             })
         }
 
@@ -76,6 +77,17 @@ const model = await initChatModel(
     "claude-haiku-4-5-20251001",
     {
         temperature: 0.7, timeout: 30, max_tokens: 1000
+    }
+)
+const basicModel = new ChatOpenAI(
+    {
+        model: "gpt-4o-mini",
+    }
+)
+
+const advanceModel = new ChatOpenAI(
+    {
+        model: "gpt-4o",
     }
 )
 

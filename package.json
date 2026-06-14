@@ -13,6 +13,7 @@
   "dependencies": {
     "@langchain/anthropic": "^1.4.0",
     "@langchain/core": "^1.1.48",
+    "@langchain/openai": "^1.4.7",
     "@types/node": "^25.9.1",
     "dotenv": "^17.4.2",
     "langchain": "^1.4.2",
