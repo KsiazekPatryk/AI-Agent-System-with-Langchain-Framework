@@ -158,3 +158,53 @@ An AI agent that adds **conversational memory** on top of Agent3, using a LangGr
 ```bash
 npx ts-node agent4.ts
 ```
+
+---
+
+## Agent5
+
+An AI agent that extends Agent4 with **dynamic model selection middleware** — it automatically switches between a more powerful and a cheaper model depending on how many messages are in the current request.
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `get_user_location` | Returns the user's location based on `user_id` from context (currently mocked: user `"1"` → `"Florida"`, otherwise `"SFO"`) |
+| `getWeather` | Returns the weather for a given city (currently mocked: "Its sunny in {city}") |
+
+### How it works
+
+1. Two models are initialised:
+   - `model` — `claude-sonnet-4-5` (advanced, higher cost)
+   - `basicModel` — `claude-haiku-4-5` (cheaper, faster)
+2. A `dynamicModelSelection` middleware is created with `createMiddleware`. Its `wrapModelCall` intercepts every model call and checks `request.messages.length`:
+   - **< 3 messages** → uses the advanced `model` (claude-sonnet)
+   - **≥ 3 messages** → switches to the cheaper `basicModel` (claude-haiku)
+3. The middleware is passed to `createAgent` via the `middleware` option.
+4. Three `invoke` calls are made in sequence (weather query → location recall → place suggestions), sharing the same `thread_id` so memory is preserved across turns.
+5. Responses use `structuredResponse` (Zod-validated) and are logged to the console.
+
+### Notes
+
+- `createMiddleware` is a LangChain API that lets you intercept and modify model calls before they are executed — similar to HTTP middleware.
+- The model switch is fully transparent to the agent — it still uses the same tools, system prompt, and response format.
+- `MemorySaver` is still used for conversational memory across invocations.
+- Tool responses are currently hardcoded — no real database or weather API is connected yet.
+
+### Differences between Agent4 and Agent5
+
+| | Agent4 | Agent5 |
+|--|--------|--------|
+| **Models** | Single model: `claude-haiku-4-5-20251001` | Two models: `claude-sonnet-4-5` (advanced) and `claude-haiku-4-5` (cheap) |
+| **Middleware** | None | `dynamicModelSelection` middleware via `createMiddleware` |
+| **Model selection** | Always the same model for every call | Automatically switches model based on message count (< 3 → sonnet, ≥ 3 → haiku) |
+| **Cost optimisation** | No | Yes — uses a cheaper model once the conversation grows |
+| **Imports** | No extra model imports | Adds `createMiddleware` from `langchain` and `ChatAnthropic` from `@langchain/anthropic` |
+| **Result access** | Reads last message content (`response.messages[...].content`) | Reads `response.structuredResponse` (Zod-validated object) |
+| **Key concept** | Conversational memory + explicit model config | **Dynamic model selection via middleware** |
+
+### Run
+
+```bash
+npx ts-node agent5.ts
+```
