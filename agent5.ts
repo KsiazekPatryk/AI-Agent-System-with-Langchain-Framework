@@ -46,7 +46,7 @@ const dynamicModelSelection = createMiddleware({
             const messageCount = request.messages.length;
             return handler({
                 ...request,
-                model: messageCount < 3 ? advanceModel : basicModel
+                model: messageCount < 3 ? model : basicModel
             })
         }
 
@@ -74,7 +74,7 @@ const responseFormat = z.object({
 // if messages count is less than 3 --> choose CheaperModel, AdvancedModel
 
 const model = await initChatModel(
-    "claude-haiku-4-5-20251001",
+    "claude-sonnet-4-5",
     {
         temperature: 0.7, timeout: 30, max_tokens: 1000
     }
@@ -83,12 +83,7 @@ const basicModel = new ChatOpenAI(
     {
         model: "gpt-4o-mini",
     }
-)
 
-const advanceModel = new ChatOpenAI(
-    {
-        model: "gpt-4o",
-    }
 )
 
 const checkpointer = new MemorySaver();
