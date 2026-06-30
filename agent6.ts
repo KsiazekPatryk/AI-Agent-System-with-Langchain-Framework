@@ -1,10 +1,10 @@
-import { createAgent,modelFallbackMiddleware,tool } from "langchain"
+import { createAgent,llmToolSelectorMiddleware,modelFallbackMiddleware,summarizationMiddleware,tool } from "langchain"
 import z from "zod"
 
 
 const SearchTool = tool(({query})=> 
 {
-    return `Search result for "${query}": Found 5 articles are reutrned`
+    return `Search result for "${query}": Found 5 articles are returned`
 },
 {
     name: "search",
@@ -16,7 +16,7 @@ const SearchTool = tool(({query})=>
 
 const emailTool = tool(({recipient, subject})=>
 {
-`Email sent to ${recipient} with subject "${subject}"`
+    return `Email sent to ${recipient} with subject "${subject}"`
 },
 {
     name: "send_email",
@@ -40,8 +40,22 @@ const getWeather = tool( (input)=>{
 )
 const agent = createAgent({
     model: "claude-sonnet-4-5",
-    tools: [SearchTool],
+    tools: [SearchTool,emailTool,getWeather],
     middleware: [modelFallbackMiddleware("haiku-4-5","claude-sonnet-4-5"),
-
+    summarizationMiddleware({
+        model: "claude-sonnet-4-5",
+        maxTokensBeforeSummary: 8000, //Trigger summarization of 8000 tokens.
+        messagesToKeep: 20
+    }),
+    //50 tools - basic model - 3-4 tools - Main model (reasoning) --> output
+    llmToolSelectorMiddleware({
+        model: "haiku-4-5",
+        maxTools: 2
+    })
     ]
 })
+
+agent.invoke({
+    messages: [{role: "user", content: "What is the weather in Tokyo?"}]
+})
+console.log(output.structuredResponse);
