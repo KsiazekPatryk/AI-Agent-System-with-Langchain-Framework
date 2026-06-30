@@ -208,3 +208,55 @@ An AI agent that extends Agent4 with **dynamic model selection middleware** — 
 ```bash
 npx ts-node agent5.ts
 ```
+
+---
+
+## Agent6
+
+An AI agent that demonstrates **three production-ready middleware** working together: automatic model fallback on failure, conversation summarization to manage token usage, and LLM-based smart tool selection to reduce unnecessary tool calls.
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `search` | Searches the internet for information (currently mocked: returns 5 articles for a given query) |
+| `send_email` | Sends an email to a recipient with a given subject (currently mocked) |
+| `getWeather` | Returns the weather for a given city (currently mocked: "Its sunny in {city}") |
+
+### How it works
+
+1. Creates an agent with `claude-sonnet-4-5` and three middleware layers:
+   - **`modelFallbackMiddleware("claude-haiku-4-5", "claude-sonnet-4-5")`** — if the primary model (`claude-sonnet-4-5`) fails, automatically retries with `claude-haiku-4-5` as fallback.
+   - **`summarizationMiddleware`** — when the conversation reaches 8 000 tokens, automatically summarizes older messages and keeps the last 20, preventing context window overflow.
+   - **`llmToolSelectorMiddleware`** — uses `claude-haiku-4-5` to pre-select the most relevant tools (max 2) before passing the request to the main model, reducing input tokens and cost.
+2. Invokes the agent with a single message asking for Tokyo's weather and an email send.
+3. The agent calls `getWeather` and `send_email` in parallel, then returns a final answer.
+4. The full response object (all messages) is logged to the console.
+
+### Notes
+
+- Middleware layers are applied in order — `modelFallbackMiddleware` wraps the outermost call, then `summarizationMiddleware`, then `llmToolSelectorMiddleware` closest to the model.
+- `llmToolSelectorMiddleware` uses a cheaper/faster model to filter tools, so the main model only sees the relevant subset — lowers cost and latency.
+- `summarizationMiddleware` requires its own `model` reference to generate the summary — uses `claude-sonnet-4-5` here.
+- Tool responses are currently hardcoded — no real search, email, or weather API is connected yet.
+
+### Differences between Agent5 and Agent6
+
+| | Agent5 | Agent6 |
+|--|--------|--------|
+| **Middleware approach** | Custom `createMiddleware` with manual `wrapModelCall` logic | Three built-in production middleware: `modelFallbackMiddleware`, `summarizationMiddleware`, `llmToolSelectorMiddleware` |
+| **Model fallback** | No automatic fallback — only switches based on message count | `modelFallbackMiddleware` automatically retries with a backup model on failure |
+| **Token management** | No token limit handling | `summarizationMiddleware` summarizes history at 8 000 tokens, keeping the last 20 messages |
+| **Tool selection** | All tools always passed to the model | `llmToolSelectorMiddleware` pre-selects up to 2 most relevant tools using a cheap model |
+| **Memory** | `MemorySaver` checkpointer — conversational memory across turns | No checkpointer — stateless single invocation |
+| **Tools** | `get_user_location`, `getWeather` | `search`, `send_email`, `getWeather` |
+| **Response format** | Zod-validated `structuredResponse` | Raw `response.messages` array |
+| **Key concept** | Custom dynamic model selection | **Built-in production middleware stack** |
+
+### Run
+
+```bash
+npx ts-node agent6.ts
+
+
+```
