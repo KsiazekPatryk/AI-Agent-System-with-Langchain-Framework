@@ -2,7 +2,7 @@ import { createAgent, createMiddleware, initChatModel, tool } from "langchain";
 import z from "zod";
 import "dotenv/config"
 import {MemorySaver} from "@langchain/langgraph"
-import { ChatOpenAI } from "@langchain/openai"
+import { ChatAnthropic } from "@langchain/anthropic"
 
 const systemPrompt = `You are the expert weather forecaster who also speaks in humour way. 
 You have access to two tools: get_weather_for_location: 
@@ -79,9 +79,9 @@ const model = await initChatModel(
         temperature: 0.7, timeout: 30, max_tokens: 1000
     }
 )
-const basicModel = new ChatOpenAI(
+const basicModel = new ChatAnthropic(
     {
-        model: "gpt-4o-mini",
+        model: "claude-haiku-4-5",
     }
 
 )
@@ -116,4 +116,6 @@ const response2 = await agent.invoke({
 
 
 
-//console.log(response.structuredResponse);
+console.log("Response 1:", response.structuredResponse);
+console.log("Response 2:", response1.structuredResponse);
+console.log("Response 3:", response2.structuredResponse);
