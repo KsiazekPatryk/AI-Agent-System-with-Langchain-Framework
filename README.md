@@ -257,6 +257,52 @@ An AI agent that demonstrates **three production-ready middleware** working toge
 
 ```bash
 npx ts-node agent6.ts
-
-
 ```
+
+---
+
+## Agent7
+
+An AI agent that adds **PII (Personally Identifiable Information) redaction middleware** — it automatically detects and masks sensitive data such as credit card numbers, SSNs, and phone numbers in user messages before they reach the model.
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `search` | Searches the internet for information (currently mocked: returns 5 articles for a given query) |
+| `send_email` | Sends an email to a recipient with a given subject (currently mocked) |
+| `getWeather` | Returns the weather for a given city (currently mocked: "Its sunny in {city}") |
+
+### How it works
+
+1. Creates an agent with `claude-sonnet-4-5` and `piiRedactionMiddleware` configured with three regex rules:
+   - `credit_card` — matches patterns like `1234-5678-9012-3456`
+   - `ssn` — matches patterns like `123-45-6789`
+   - `phone` — matches patterns like `123-456-7890`
+2. Before any message reaches the model, the middleware scans the content and replaces matched patterns with `[REDACTED]`.
+3. Invokes the agent with a message containing a raw credit card number.
+4. The model never sees the actual PII — it only receives the redacted version.
+5. The full response object is logged to the console.
+
+### Notes
+
+- `piiRedactionMiddleware` is marked as `@deprecated` in LangChain but remains functional. The alternative is to build a custom middleware using `createMiddleware` with manual regex replacement logic.
+- Rules use standard JavaScript `RegExp` objects — the `g` flag ensures all occurrences in a message are replaced.
+- This middleware protects against accidental PII leakage to third-party LLM providers.
+
+### Differences between Agent6 and Agent7
+
+| | Agent6 | Agent7 |
+|--|--------|--------|
+| **Middleware** | `modelFallbackMiddleware`, `summarizationMiddleware`, `llmToolSelectorMiddleware` | `piiRedactionMiddleware` |
+| **Primary concern** | Reliability, token management, cost optimisation | **Data privacy and PII protection** |
+| **Input processing** | Messages passed to model as-is | Sensitive patterns (credit card, SSN, phone) **redacted before reaching the model** |
+| **Model stack** | Multiple models (sonnet + haiku for fallback/selection) | Single model: `claude-sonnet-4-5` |
+| **Key concept** | Production middleware stack | **PII redaction for data privacy** |
+
+### Run
+
+```bash
+npx ts-node agent7.ts
+```
+
