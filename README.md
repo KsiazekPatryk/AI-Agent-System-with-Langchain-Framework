@@ -306,3 +306,46 @@ An AI agent that adds **PII (Personally Identifiable Information) redaction midd
 npx ts-node agent7.ts
 ```
 
+---
+
+## RAG (Retrieval-Augmented Generation)
+
+Agents in this category combine LLMs with external knowledge sources — documents are loaded, split into chunks, indexed in a vector store, and searched semantically before the answer is passed to the model.
+
+---
+
+## RAGAgent1
+
+A foundational RAG pipeline that **loads a PDF document, splits it into chunks, embeds them into a vector store, and performs semantic search** — without an attached language model.
+
+### How it works
+
+1. **Document loading** — `PDFLoader` reads the `nke-10k-2023.pdf` file (Nike 2023 Annual Report).
+2. **Chunking** — `RecursiveCharacterTextSplitter` splits the document into chunks of `1000` characters with a `200`-character overlap, preserving context across chunk boundaries.
+3. **Embeddings** — `OpenAIEmbeddings` with the `text-embedding-3-large` model converts each text chunk into a numeric vector.
+4. **Vector store** — `MemoryVectorStore` holds all vectors in memory (no persistence).
+5. **Similarity search** — `similaritySearch("When was Nike incorporated?")` returns the chunks most semantically close to the query.
+6. **MMR Retriever** — `asRetriever` with `searchType: "mmr"` (Maximal Marginal Relevance) and `fetchK: 1`, `lambda: 0.5` configures a retriever that balances relevance and diversity of results.
+
+### Key concepts
+
+| Concept | Description |
+|---------|-------------|
+| **PDFLoader** | Loads PDF pages as LangChain documents |
+| **RecursiveCharacterTextSplitter** | Intelligently splits text while preserving sentence/paragraph boundaries |
+| **OpenAIEmbeddings** | Converts text into vectors using the `text-embedding-3-large` model |
+| **MemoryVectorStore** | In-memory vector store — fast for prototyping, no persistence |
+| **similaritySearch** | Cosine similarity search — returns the most semantically relevant chunks |
+| **MMR Retriever** | Maximal Marginal Relevance — results are relevant but diverse |
+
+### Requirements
+
+- `OPENAI_API_KEY` environment variable set in `.env`
+- PDF file available at `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+
+### Run
+
+```bash
+npx tsx rag/ragagent1.ts
+```
+
