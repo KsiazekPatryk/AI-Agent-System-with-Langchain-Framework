@@ -397,3 +397,53 @@ A RAG pipeline that **injects retrieved document context dynamically into the sy
 npx tsx rag/ragagent2.ts
 ```
 
+---
+
+## RAGAgent3
+
+A multi-document RAG pipeline that **loads multiple PDF files, merges them into a single vector store, and answers questions that require knowledge spanning across several documents**.
+
+### How it works
+
+1. **Multi-document loading** — iterates over an array of 4 PDF paths (including Nike 10-K 2023, Nike 10-K 2025, and a Nike growth story document) and loads each with `PDFLoader`, merging all pages into a single `allDocs` array.
+2. **Chunking** — `RecursiveCharacterTextSplitter` splits all documents into `1000`-character chunks with `200`-character overlap.
+3. **Embeddings & vector store** — `OpenAIEmbeddings` (`text-embedding-3-large`) embeds every chunk into a shared `MemoryVectorStore`.
+4. **RAG middleware** — `dynamicSystemPromptMiddleware` retrieves the 2 most relevant chunks for the user's query and injects them as context into the system prompt — identical approach to RAGAgent2.
+5. **Agent** — `createAgent` uses `claude-sonnet-4-6` with no tools and the `ragMiddleware`.
+6. Invoked with a cross-document question: `"What was Nike's revenue in 2023 & 2025 and from which Town Nike has grown into worldfamous footwear?"` — requiring facts from multiple source documents.
+
+### Key concepts
+
+| Concept | Description |
+|---------|-------------|
+| **Multi-document loading** | Loops over a list of PDF paths and merges all pages into one document array |
+| **Shared vector store** | All documents — regardless of source — are embedded into a single `MemoryVectorStore` |
+| **Cross-document retrieval** | `similaritySearch` can surface relevant chunks from any of the loaded documents |
+| **Source metadata** | Each chunk retains its `source` path in metadata, allowing traceability back to the original file |
+
+### What RAGAgent3 adds over RAGAgent2
+
+| | RAGAgent2 | RAGAgent3 |
+|--|-----------|-----------|
+| **Documents** | Single PDF (`nke-10k-2023.pdf`) | **4 PDFs** merged into one vector store |
+| **Knowledge scope** | Facts from one report only | Cross-document knowledge (2023 & 2025 reports + growth story) |
+| **Loading strategy** | Single `PDFLoader` call | Loop over `pdfPaths` array, accumulating docs |
+| **Query complexity** | Single-document question | **Multi-document question** spanning years and topics |
+| **Key concept** | Middleware-based RAG with one document | **Multi-document RAG** |
+
+### Requirements
+
+- `OPENAI_API_KEY` environment variable set in `.env` (for embeddings)
+- `ANTHROPIC_API_KEY` environment variable set in `.env` (for `claude-sonnet-4-6`)
+- PDF files available at:
+  - `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+  - `/users/patrykksiazek/downloads/ProjectDocs/Nike-Inc-2025_10K.pdf`
+  - `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.pdf`
+
+### Run
+
+```bash
+npx tsx rag/ragagent3.ts
+```
+
+
