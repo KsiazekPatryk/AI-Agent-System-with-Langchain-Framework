@@ -8,14 +8,15 @@ import "dotenv/config";
 
 
 const pdfPaths = ["/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf",
-"/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2022.pdf",
+"/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf",
 "/users/patrykksiazek/downloads/ProjectDocs/Nike-Inc-2025_10K.pdf",
 "/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.pdf",
 ]
 
 const allDocs = [];
 
-for (const pdfPath of pdfPaths) {
+for (const pdfPath of pdfPaths) 
+{
     const loader = new PDFLoader(pdfPath);
     const docs = await loader.load();
     allDocs.push(...docs);
@@ -49,7 +50,7 @@ const agent = createAgent({
 })
 
 const result = await agent.invoke({
-    messages: [{role: "user", content: "When was Nike incorporated?"}]
+    messages: [{role: "user", content: "What was Nike's revenue in 2023 & 2025 and from which Town Nike has grown into worldfamous footwear?"}]
 })
 
 console.log(result)
