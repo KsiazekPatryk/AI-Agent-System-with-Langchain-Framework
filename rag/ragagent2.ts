@@ -25,12 +25,12 @@ const ragMiddleware = dynamicSystemPromptMiddleware(async(state)=>
  const userMessage =  state.messages[0].content;
  const query = typeof userMessage === "string" ? userMessage : "";
  const retrievedDocs = await vectorStore.similaritySearch(query, 2);
- const context = retrievedDocs.map((doc) => doc.pageContent).join("\n\n");
- return `Use the following context to answer the user's question:\n\n${context}`;
+ const docsContent = retrievedDocs.map((doc) => doc.pageContent).join("\n\n");
+ return `You are helpful assistant. Use the following context from the document to answer the user's question:\n\n${docsContent}`;
 });
 
 const agent = createAgent({
-    model: "gpt-4o",
+    model: "claude-sonnet-4-6",
     tools: [],
     middleware: [ragMiddleware]
 })
