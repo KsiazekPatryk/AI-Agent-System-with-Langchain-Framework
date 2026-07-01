@@ -18,13 +18,10 @@ const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-large" })
 
 const vectorStore = await MemoryVectorStore.fromDocuments(allSplits, embeddings)
 
-const results = await vectorStore.similaritySearch("When was Nike incorporated?");
-
-const retriever = vectorStore.asRetriever({
-    searchType: "mmr",
-    searchKwargs: {fetchK: 1, lambda: 0.5 }
-})
 
 
-console.log(results)
+You are helpful assistant. Use the following context from the document to answer the user's question: \n\n${docsContet}
+
+
+console.log()
 
