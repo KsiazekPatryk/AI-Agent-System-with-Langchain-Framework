@@ -349,3 +349,51 @@ A foundational RAG pipeline that **loads a PDF document, splits it into chunks, 
 npx tsx rag/ragagent1.ts
 ```
 
+---
+
+## RAGAgent2
+
+A RAG pipeline that **injects retrieved document context dynamically into the system prompt** using `dynamicSystemPromptMiddleware`, connecting the vector store to a language model through the agent's middleware layer.
+
+### How it works
+
+1. **Document loading & chunking** — same as RAGAgent1: `PDFLoader` loads the PDF, `RecursiveCharacterTextSplitter` splits it into `1000`-character chunks with `200`-character overlap.
+2. **Embeddings & vector store** — `OpenAIEmbeddings` (`text-embedding-3-large`) embeds all chunks into a `MemoryVectorStore`.
+3. **RAG middleware** — `dynamicSystemPromptMiddleware` intercepts every agent call and:
+   - extracts the user's message from `state.messages[0].content`
+   - runs `similaritySearch(query, 2)` to retrieve the 2 most relevant chunks
+   - joins them and returns a system prompt with the retrieved context injected
+4. **Agent** — `createAgent` uses `claude-sonnet-4-6` with no tools, only the `ragMiddleware` — the model answers purely based on the injected context.
+5. The agent is invoked with `"When was Nike incorporated?"` and the result is logged.
+
+### Key concepts
+
+| Concept | Description |
+|---------|-------------|
+| **dynamicSystemPromptMiddleware** | Intercepts each agent call to build a dynamic system prompt — ideal for injecting RAG context |
+| **state.messages** | Gives the middleware access to the current conversation messages |
+| **similaritySearch(query, 2)** | Retrieves the 2 most semantically similar chunks for the query |
+| **Middleware-based RAG** | Context is injected at the middleware level — the agent itself requires no changes |
+
+### What RAGAgent2 adds over RAGAgent1
+
+| | RAGAgent1 | RAGAgent2 |
+|--|-----------|-----------|
+| **Language model** | No LLM — only vector search | `claude-sonnet-4-6` answers the query |
+| **Context delivery** | Results logged to console | Context injected into system prompt via middleware |
+| **Middleware** | None | `dynamicSystemPromptMiddleware` |
+| **Output** | Raw document chunks | Natural language answer grounded in retrieved context |
+| **Key concept** | Vector store + similarity search | **RAG via dynamic system prompt middleware** |
+
+### Requirements
+
+- `OPENAI_API_KEY` environment variable set in `.env` (for embeddings)
+- `ANTHROPIC_API_KEY` environment variable set in `.env` (for `claude-sonnet-4-6`)
+- PDF file available at `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+
+### Run
+
+```bash
+npx tsx rag/ragagent2.ts
+```
+
