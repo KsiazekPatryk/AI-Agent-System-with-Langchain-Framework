@@ -36,7 +36,7 @@ const agent = createAgent({
 })
 
 const result = await agent.invoke({
-    messages: [{role: "user", content: "When was Nike incorporated?"}]
+    messages: [{role: "user", content: "What are key highlights of Nike's growth story?"}]
 })
 
 console.log(result)
