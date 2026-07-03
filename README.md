@@ -1,4 +1,82 @@
-# AI Agent System with Langchain Framework
+# AI Agent System with LangChain Framework
+
+## Overview
+
+A progressive, hands-on implementation of AI agent patterns using the **LangChain** framework in TypeScript. Each agent and RAG pipeline builds on the previous one, introducing a new concept from the fundamentals of agent architecture through to full MCP-integrated agentic RAG deployable via LangGraph.
+
+### 1. AI Agents – Fundamentals
+- Understanding Agent Architecture
+- Creating agents using `createAgent()`
+- Agent invocation & message passing
+- Tool-based agent workflows
+- Model selection (GPT-4, Claude Sonnet, Claude Haiku)
+
+### 2. Tools & Function Calling
+- Custom tools with `tool()`
+- Zod validation schemas
+- Multi-tool orchestration
+- Examples: `getWeather`, `getTime`, `emailTool`, `searchTool`
+
+### 3. System Prompts & Prompt Engineering
+- Custom `systemPrompt`
+- `dynamicSystemPromptMiddleware` — context injection
+
+### 4. Context Management
+- `config.context` usage — user-specific data
+- Environment configs
+
+### 5. Memory & State Management
+- `MemorySaver` checkpointer
+- `thread_id` handling
+- Persistent conversation history
+
+### 6. Structured Outputs
+- `responseFormat`
+- Zod schemas
+- Type-safe responses
+
+### 7. Model Configuration
+- `initChatModel()`
+- Temperature, timeout, token limits
+- Multi-model support
+
+### 8. Middleware System
+- `dynamicModelSelection`
+- `modelFallbackMiddleware`
+- `summarizationMiddleware`
+- `llmToolSelectorMiddleware`
+- `piiRedactionMiddleware`
+
+### 9. Guardrails & Safety
+- PII detection
+- Regex filtering
+- Compliance patterns
+
+### 10. Retrieval Augmented Generation (RAG)
+- PDF & DOCX loading
+- Text splitting (chunk size 1000 / overlap 200)
+- Embeddings: `text-embedding-3-large`
+- `MemoryVectorStore`
+- Similarity Search & MMR
+- RAG via middleware & tools
+
+### 11. Multi-Tool Agents
+- Combining RAG + utility tools
+- Multi-domain orchestration
+
+### 12. MCP Integration – Agentic RAG
+- `MultiServerMCPClient`
+- External systems + RAG
+
+### 13. LangGraph Deployment
+- `langgraph.json`
+- `ragagentServer.ts`
+
+### 14. Environment Management
+- API keys & `.env` usage
+- LangSmith tracing
+
+---
 
 ## Agent1
 
@@ -441,6 +519,469 @@ A multi-document RAG pipeline that **loads multiple PDF files, merges them into 
   - `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.pdf`
 
 ### Run
+
+```bash
+npx tsx rag/ragagent3.ts
+```
+
+---
+
+---
+
+# Opis projektu
+
+# System Agentów AI z Frameworkiem LangChain
+
+## Przegląd
+
+Stopniowa, praktyczna implementacja wzorców agentów AI z wykorzystaniem frameworku **LangChain** w TypeScript. Każdy agent i potok RAG rozbudowuje poprzedni, wprowadzając nowy koncept — od podstaw architektury agentów po w pełni zintegrowany agentic RAG z MCP, możliwy do wdrożenia za pomocą LangGraph.
+
+### 1. Agenty AI – Podstawy
+- Zrozumienie architektury agentów
+- Tworzenie agentów przy użyciu `createAgent()`
+- Wywoływanie agentów i przekazywanie wiadomości
+- Przepływy pracy z narzędziami (tool-based workflows)
+- Wybór modelu (GPT-4, Claude Sonnet, Claude Haiku)
+
+### 2. Narzędzia i Function Calling
+- Własne narzędzia z `tool()`
+- Schematy walidacji Zod
+- Orkiestracja wielu narzędzi
+- Przykłady: `getWeather`, `getTime`, `emailTool`, `searchTool`
+
+### 3. Prompty systemowe i inżynieria promptów
+- Własny `systemPrompt`
+- `dynamicSystemPromptMiddleware` — wstrzykiwanie kontekstu
+
+### 4. Zarządzanie kontekstem
+- Użycie `config.context` — dane specyficzne dla użytkownika
+- Konfiguracje środowiskowe
+
+### 5. Pamięć i zarządzanie stanem
+- Checkpointer `MemorySaver`
+- Obsługa `thread_id`
+- Trwała historia konwersacji
+
+### 6. Ustrukturyzowane odpowiedzi
+- `responseFormat`
+- Schematy Zod
+- Odpowiedzi z bezpieczeństwem typów
+
+### 7. Konfiguracja modelu
+- `initChatModel()`
+- Temperatura, limit czasu, limity tokenów
+- Wsparcie wielu modeli
+
+### 8. System middleware
+- `dynamicModelSelection`
+- `modelFallbackMiddleware`
+- `summarizationMiddleware`
+- `llmToolSelectorMiddleware`
+- `piiRedactionMiddleware`
+
+### 9. Guardrails i bezpieczeństwo
+- Wykrywanie PII
+- Filtrowanie przez wyrażenia regularne
+- Wzorce zgodności z regulacjami
+
+### 10. Retrieval Augmented Generation (RAG)
+- Ładowanie plików PDF i DOCX
+- Dzielenie tekstu (rozmiar fragmentu 1000 / nakładanie 200)
+- Embeddingi: `text-embedding-3-large`
+- `MemoryVectorStore`
+- Similarity Search i MMR
+- RAG przez middleware i narzędzia
+
+### 11. Agenty wielonarzędziowe
+- Łączenie RAG z narzędziami użytkowymi
+- Orkiestracja wielu dziedzin
+
+### 12. Integracja MCP – Agentic RAG
+- `MultiServerMCPClient`
+- Zewnętrzne systemy + RAG
+
+### 13. Wdrożenie LangGraph
+- `langgraph.json`
+- `ragagentServer.ts`
+
+### 14. Zarządzanie środowiskiem
+- Klucze API i użycie `.env`
+- Śledzenie z LangSmith
+
+---
+
+## Agent1
+
+Prosty agent AI zbudowany z LangChain, oparty na modelu **Claude Haiku**, z dwoma narzędziami:
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `getWeather` | Zwraca pogodę dla podanego miasta (aktualnie mockowane: "It's sunny in {city}") |
+| `getTime` | Zwraca aktualny czas dla podanego miasta (aktualnie mockowane: "The current time in {city} is 3:00 PM") |
+
+### Jak działa
+
+1. Tworzy agenta (`createAgent`) z modelem `claude-haiku-4-5-20251001` i zestawem narzędzi.
+2. Wywołuje agenta z pytaniem użytkownika — domyślnie: `"What is weather & time in New York?"`.
+3. Agent decyduje, które narzędzia wywołać, wykonuje je i zwraca złożoną odpowiedź.
+4. Wynik jest logowany do konsoli.
+
+### Uwagi
+- Oba narzędzia używają Zod do walidacji schematu wejściowego (`city: string`).
+- Odpowiedzi narzędzi są aktualnie zakodowane na stałe — żadne prawdziwe API pogody ani czasu nie jest podłączone.
+
+### Uruchomienie
+
+```bash
+npx ts-node agent1.ts
+```
+
+---
+
+## Agent2
+
+Agent AI demonstrujący **dwuetapowy łańcuch narzędzi**: najpierw pobiera lokalizację użytkownika, a następnie sprawdza pogodę dla tej lokalizacji — bez potrzeby podawania miasta przez użytkownika.
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `getUserLocation` | Zwraca miasto użytkownika na podstawie `user_id` z kontekstu (mockowane: użytkownik `"1"` → `"Florida"`) |
+| `getWeather` | Zwraca pogodę dla podanego miasta (mockowane: "It's sunny in {city}") |
+
+### Jak działa
+
+1. Tworzy agenta z modelem `claude-haiku-4-5-20251001` i oboma narzędziami.
+2. Wywołuje agenta z `"What is the weather outside?"` i przekazuje obiekt `config` zawierający `user_id`.
+3. Agent najpierw wywołuje `getUserLocation` (zgodnie z opisem narzędzia), pobiera miasto.
+4. Następnie wywołuje `getWeather` z tym miastem i zwraca końcową odpowiedź.
+
+### Uwagi
+
+- `getUserLocation` otrzymuje `config.context.user_id` przez konfigurację runtime LangChain — w ten sposób kontekst użytkownika jest bezpiecznie wstrzykiwany do narzędzi.
+- Odpowiedzi narzędzi są aktualnie zakodowane na stałe.
+
+### Różnice względem Agent1
+
+| | Agent1 | Agent2 |
+|--|--------|--------|
+| **Narzędzia** | `getWeather`, `getTime` | `getUserLocation`, `getWeather` |
+| **Użycie narzędzi** | Niezależne narzędzia — każde odpowiada na osobne pytanie | **Łańcuch narzędzi** — wyjście jednego zasila kolejne |
+| **Wejście użytkownika** | Miasto musi być podane w pytaniu | Miasto jest **wywnioskowane** — użytkownik pyta tylko `"What is the weather outside?"` |
+| **Kontekst** | Brak kontekstu | Przekazuje `config` z `user_id`, wstrzyknięty do narzędzia przez `config.context.user_id` |
+| **Kluczowy koncept** | Podstawowe wywołanie narzędzi | Łańcuch narzędzi + kontekst użytkownika w runtime |
+
+### Uruchomienie
+
+```bash
+npx ts-node agent2.ts
+```
+
+---
+
+## Agent3
+
+Agent AI z **humorystyczną personą prezentera pogody**, który używa promptu systemowego do kierowania swoim zachowaniem i zwraca **ustrukturyzowaną odpowiedź** zwalidowaną schematem Zod.
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `get_user_location` | Zwraca lokalizację użytkownika na podstawie `user_id` z kontekstu (mockowane: użytkownik `"1"` → `"Florida"`, inaczej `"SFO"`) |
+| `getWeather` | Zwraca pogodę dla podanego miasta (mockowane: "Its sunny in {city}") |
+
+### Jak działa
+
+1. Tworzy agenta z modelem `claude-haiku-4-5-20251001`, oboma narzędziami, `systemPrompt` i `responseFormat`.
+2. `systemPrompt` definiuje agenta jako eksperta meteorologa mówiącego z humorem i nakazuje mu najpierw ustalić lokalizację.
+3. Wywołuje agenta z `"What is the weather outside?"` i przekazuje obiekt `qaConfig` z `user_id`.
+4. Agent wywołuje `get_user_location` aby ustalić miasto, następnie `getWeather` i zwraca wynik.
+5. Odpowiedź jest ograniczona do schematu Zod (`human_response`, `weather_conditions`) i logowana przez `response.structuredResponse`.
+
+### Co Agent3 dodaje względem Agent2
+
+| | Agent3 | Agent2 |
+|--|--------|--------|
+| **Prompt systemowy** | Dodaje `systemPrompt` z humoreystyczną personą i strategią wywoływania narzędzi | Brak |
+| **Format wyjścia** | **Ustrukturyzowana odpowiedź** zwalidowana schematem Zod | Odpowiedź w dowolnym formacie tekstowym |
+| **Kluczowy koncept** | Persona przez prompt systemowy + gwarantowane ustrukturyzowane wyjście | Łańcuch narzędzi + kontekst runtime |
+
+### Uruchomienie
+
+```bash
+npx ts-node agent3.ts
+```
+
+---
+
+## Agent4
+
+Agent AI dodający **pamięć konwersacji** na bazie Agent3, używający checkpointera `MemorySaver` z LangGraph, dzięki czemu agent pamięta wcześniejsze tury w tym samym wątku. Konfiguruje też model jawnie przez `initChatModel`.
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `get_user_location` | Zwraca lokalizację użytkownika (mockowane: użytkownik `"1"` → `"Florida"`, inaczej `"SFO"`) |
+| `getWeather` | Zwraca pogodę dla podanego miasta (mockowane) |
+
+### Jak działa
+
+1. Buduje model przez `initChatModel("claude-haiku-4-5-20251001", { temperature: 0.7, timeout: 30, max_tokens: 1000 })`.
+2. Tworzy checkpointer `MemorySaver` i przekazuje go do `createAgent` — stan konwersacji jest trwały per wątek.
+3. Każde `invoke` przekazuje `config` z `configurable.thread_id` — wymagane przy użyciu checkpointera.
+4. Pierwsze dwa wywołania dzielą ten sam `thread_id`, więc agent pamięta ustaloną lokalizację między turami.
+5. Trzecie wywołanie demonstruje, jak pamięć jest kluczowana przez `thread_id`.
+
+### Co Agent4 dodaje względem Agent3
+
+| | Agent4 | Agent3 |
+|--|--------|--------|
+| **Pamięć** | Trwały stan konwersacji z `MemorySaver` | Bezstanowy — każde `invoke` zaczyna od nowa |
+| **Konfiguracja modelu** | `initChatModel(...)` z jawnym `temperature`, `timeout`, `max_tokens` | ID modelu jako string |
+| **Kluczowy koncept** | Pamięć konwersacji + jawna konfiguracja modelu | Persona + ustrukturyzowane wyjście |
+
+### Uruchomienie
+
+```bash
+npx ts-node agent4.ts
+```
+
+---
+
+## Agent5
+
+Agent AI rozszerzający Agent4 o **middleware dynamicznego wyboru modelu** — automatycznie przełącza się między bardziej zaawansowanym a tańszym modelem w zależności od liczby wiadomości w bieżącym żądaniu.
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `get_user_location` | Zwraca lokalizację użytkownika (mockowane) |
+| `getWeather` | Zwraca pogodę dla podanego miasta (mockowane) |
+
+### Jak działa
+
+1. Inicjalizowane są dwa modele:
+   - `model` — `claude-sonnet-4-5` (zaawansowany, wyższy koszt)
+   - `basicModel` — `claude-haiku-4-5` (tańszy, szybszy)
+2. Middleware `dynamicModelSelection` przechwytuje każde wywołanie modelu i sprawdza `request.messages.length`:
+   - **< 3 wiadomości** → używa zaawansowanego `model` (claude-sonnet)
+   - **≥ 3 wiadomości** → przełącza na tańszy `basicModel` (claude-haiku)
+3. Middleware jest przekazywane do `createAgent` przez opcję `middleware`.
+
+### Różnice między Agent4 a Agent5
+
+| | Agent4 | Agent5 |
+|--|--------|--------|
+| **Modele** | Jeden model: `claude-haiku-4-5-20251001` | Dwa modele: `claude-sonnet-4-5` i `claude-haiku-4-5` |
+| **Middleware** | Brak | `dynamicModelSelection` przez `createMiddleware` |
+| **Wybór modelu** | Zawsze ten sam model | Automatyczne przełączanie na podstawie liczby wiadomości |
+| **Optymalizacja kosztów** | Nie | Tak — tańszy model po rozrośnięciu konwersacji |
+| **Kluczowy koncept** | Pamięć konwersacji + jawna konfiguracja modelu | **Dynamiczny wybór modelu przez middleware** |
+
+### Uruchomienie
+
+```bash
+npx ts-node agent5.ts
+```
+
+---
+
+## Agent6
+
+Agent AI demonstrujący **trzy produkcyjne middleware** działające razem: automatyczny fallback modelu przy błędzie, podsumowywanie konwersacji do zarządzania użyciem tokenów oraz inteligentny wybór narzędzi przez LLM w celu redukcji niepotrzebnych wywołań.
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `search` | Przeszukuje internet w poszukiwaniu informacji (mockowane: zwraca 5 artykułów dla zapytania) |
+| `send_email` | Wysyła e-mail do odbiorcy z podanym tematem (mockowane) |
+| `getWeather` | Zwraca pogodę dla podanego miasta (mockowane) |
+
+### Jak działa
+
+1. Tworzy agenta z `claude-sonnet-4-5` i trzema warstwami middleware:
+   - **`modelFallbackMiddleware`** — jeśli główny model zawiedzie, automatycznie ponawia z `claude-haiku-4-5`.
+   - **`summarizationMiddleware`** — po osiągnięciu 8 000 tokenów automatycznie podsumowuje starsze wiadomości, zachowując ostatnie 20.
+   - **`llmToolSelectorMiddleware`** — używa `claude-haiku-4-5` do wstępnego wyboru max 2 najbardziej trafnych narzędzi.
+2. Wywołuje agenta z pytaniem o pogodę w Tokio i prośbą o wysłanie e-maila.
+3. Agent wywołuje `getWeather` i `send_email` równolegle, a następnie zwraca końcową odpowiedź.
+
+### Różnice między Agent5 a Agent6
+
+| | Agent5 | Agent6 |
+|--|--------|--------|
+| **Podejście do middleware** | Własny `createMiddleware` z ręczną logiką `wrapModelCall` | Trzy wbudowane produkcyjne middleware |
+| **Fallback modelu** | Brak | `modelFallbackMiddleware` automatycznie ponawia z modelem zapasowym |
+| **Zarządzanie tokenami** | Brak | `summarizationMiddleware` podsumowuje historię przy 8 000 tokenów |
+| **Wybór narzędzi** | Wszystkie narzędzia zawsze przekazywane do modelu | `llmToolSelectorMiddleware` wstępnie wybiera max 2 trafne narzędzia |
+| **Kluczowy koncept** | Własny dynamiczny wybór modelu | **Produkcyjny stos middleware** |
+
+### Uruchomienie
+
+```bash
+npx ts-node agent6.ts
+```
+
+---
+
+## Agent7
+
+Agent AI dodający **middleware redakcji PII (Personally Identifiable Information)** — automatycznie wykrywa i maskuje wrażliwe dane, takie jak numery kart kredytowych, numery PESEL/SSN i numery telefonów w wiadomościach użytkownika, zanim dotrą do modelu.
+
+### Narzędzia
+
+| Narzędzie | Opis |
+|-----------|------|
+| `search` | Przeszukuje internet (mockowane) |
+| `send_email` | Wysyła e-mail (mockowane) |
+| `getWeather` | Zwraca pogodę (mockowane) |
+
+### Jak działa
+
+1. Tworzy agenta z `claude-sonnet-4-5` i `piiRedactionMiddleware` z trzema regułami regex:
+   - `credit_card` — dopasowuje wzorce jak `1234-5678-9012-3456`
+   - `ssn` — dopasowuje wzorce jak `123-45-6789`
+   - `phone` — dopasowuje wzorce jak `123-456-7890`
+2. Przed dotarciem wiadomości do modelu middleware skanuje treść i zastępuje dopasowane wzorce `[REDACTED]`.
+3. Model nigdy nie widzi rzeczywistych danych PII — otrzymuje tylko zredagowaną wersję.
+
+### Różnice między Agent6 a Agent7
+
+| | Agent6 | Agent7 |
+|--|--------|--------|
+| **Middleware** | `modelFallbackMiddleware`, `summarizationMiddleware`, `llmToolSelectorMiddleware` | `piiRedactionMiddleware` |
+| **Główny cel** | Niezawodność, zarządzanie tokenami, optymalizacja kosztów | **Prywatność danych i ochrona PII** |
+| **Przetwarzanie wejścia** | Wiadomości przekazywane do modelu bez zmian | Wrażliwe wzorce (karta kredytowa, SSN, telefon) **redagowane przed dotarciem do modelu** |
+| **Kluczowy koncept** | Produkcyjny stos middleware | **Redakcja PII dla ochrony prywatności danych** |
+
+### Uruchomienie
+
+```bash
+npx ts-node agent7.ts
+```
+
+---
+
+## RAG (Retrieval-Augmented Generation)
+
+Agenty z tej kategorii łączą LLM z zewnętrznymi źródłami wiedzy — dokumenty są ładowane, dzielone na fragmenty, indeksowane w wektorowym magazynie danych i przeszukiwane semantycznie przed przekazaniem odpowiedzi do modelu.
+
+---
+
+## RAGAgent1
+
+Podstawowy potok RAG, który **ładuje dokument PDF, dzieli go na fragmenty, osadza je w wektorowym magazynie danych i wykonuje wyszukiwanie semantyczne** — bez podłączonego modelu językowego.
+
+### Jak działa
+
+1. **Ładowanie dokumentu** — `PDFLoader` wczytuje plik `nke-10k-2023.pdf` (Raport Roczny Nike 2023).
+2. **Fragmentacja** — `RecursiveCharacterTextSplitter` dzieli dokument na fragmenty po `1000` znaków z nakładaniem `200` znaków.
+3. **Embeddingi** — `OpenAIEmbeddings` z modelem `text-embedding-3-large` zamienia każdy fragment tekstu na wektor liczbowy.
+4. **Wektorowy magazyn** — `MemoryVectorStore` przechowuje wszystkie wektory w pamięci (bez trwałości).
+5. **Wyszukiwanie podobieństwa** — `similaritySearch("When was Nike incorporated?")` zwraca fragmenty najbardziej zbliżone semantycznie do zapytania.
+6. **Retriever MMR** — `asRetriever` z `searchType: "mmr"` konfiguruje retriever balansujący trafność i różnorodność wyników.
+
+### Kluczowe koncepty
+
+| Koncept | Opis |
+|---------|------|
+| **PDFLoader** | Ładuje strony PDF jako dokumenty LangChain |
+| **RecursiveCharacterTextSplitter** | Inteligentnie dzieli tekst, zachowując granice zdań/akapitów |
+| **OpenAIEmbeddings** | Zamienia tekst na wektory modelem `text-embedding-3-large` |
+| **MemoryVectorStore** | Wektorowy magazyn w pamięci — szybki do prototypowania, bez trwałości |
+| **similaritySearch** | Wyszukiwanie przez podobieństwo cosinusowe — zwraca najbardziej trafne semantycznie fragmenty |
+| **Retriever MMR** | Maximal Marginal Relevance — wyniki są trafne, ale zróżnicowane |
+
+### Wymagania
+
+- Zmienna środowiskowa `OPENAI_API_KEY` ustawiona w `.env`
+- Plik PDF dostępny pod `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+
+### Uruchomienie
+
+```bash
+npx tsx rag/ragagent1.ts
+```
+
+---
+
+## RAGAgent2
+
+Potok RAG, który **dynamicznie wstrzykuje pobrany kontekst dokumentu do promptu systemowego** za pomocą `dynamicSystemPromptMiddleware`, łącząc wektorowy magazyn danych z modelem językowym przez warstwę middleware agenta.
+
+### Jak działa
+
+1. **Ładowanie i fragmentacja dokumentu** — tak samo jak RAGAgent1.
+2. **Embeddingi i wektorowy magazyn** — `OpenAIEmbeddings` osadza wszystkie fragmenty w `MemoryVectorStore`.
+3. **Middleware RAG** — `dynamicSystemPromptMiddleware` przechwytuje każde wywołanie agenta i:
+   - wyciąga wiadomość użytkownika z `state.messages[0].content`
+   - uruchamia `similaritySearch(query, 2)` aby pobrać 2 najbardziej trafne fragmenty
+   - łączy je i zwraca prompt systemowy z wstrzykniętym kontekstem
+4. **Agent** — `createAgent` używa `claude-sonnet-4-6` bez narzędzi, tylko z `ragMiddleware`.
+5. Agent jest wywoływany z `"When was Nike incorporated?"` i wynik jest logowany.
+
+### Co RAGAgent2 dodaje względem RAGAgent1
+
+| | RAGAgent1 | RAGAgent2 |
+|--|-----------|-----------|
+| **Model językowy** | Brak LLM — tylko wyszukiwanie wektorowe | `claude-sonnet-4-6` odpowiada na zapytanie |
+| **Dostarczanie kontekstu** | Wyniki logowane do konsoli | Kontekst wstrzykiwany do promptu systemowego przez middleware |
+| **Middleware** | Brak | `dynamicSystemPromptMiddleware` |
+| **Wyjście** | Surowe fragmenty dokumentu | Odpowiedź w języku naturalnym oparta na pobranym kontekście |
+| **Kluczowy koncept** | Wektorowy magazyn + wyszukiwanie podobieństwa | **RAG przez middleware dynamicznego promptu systemowego** |
+
+### Wymagania
+
+- `OPENAI_API_KEY` w `.env` (dla embeddingów)
+- `ANTHROPIC_API_KEY` w `.env` (dla `claude-sonnet-4-6`)
+- Plik PDF dostępny pod `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+
+### Uruchomienie
+
+```bash
+npx tsx rag/ragagent2.ts
+```
+
+---
+
+## RAGAgent3
+
+Wielodokumentowy potok RAG, który **ładuje wiele plików PDF, łączy je w jeden wektorowy magazyn danych i odpowiada na pytania wymagające wiedzy z kilku dokumentów jednocześnie**.
+
+### Jak działa
+
+1. **Ładowanie wielu dokumentów** — iteruje po tablicy 4 ścieżek PDF i ładuje każdy przez `PDFLoader`, łącząc wszystkie strony w jedną tablicę `allDocs`.
+2. **Fragmentacja** — `RecursiveCharacterTextSplitter` dzieli wszystkie dokumenty na fragmenty po `1000` znaków z nakładaniem `200`.
+3. **Embeddingi i wektorowy magazyn** — `OpenAIEmbeddings` osadza każdy fragment we wspólnym `MemoryVectorStore`.
+4. **Middleware RAG** — `dynamicSystemPromptMiddleware` pobiera 2 najbardziej trafne fragmenty i wstrzykuje je jako kontekst do promptu systemowego.
+5. **Agent** — `createAgent` używa `claude-sonnet-4-6` bez narzędzi i z `ragMiddleware`.
+6. Wywoływany z pytaniem krzyżującym dokumenty: `"What was Nike's revenue in 2023 & 2025 and from which Town Nike has grown into worldfamous footwear?"`.
+
+### Co RAGAgent3 dodaje względem RAGAgent2
+
+| | RAGAgent2 | RAGAgent3 |
+|--|-----------|-----------|
+| **Dokumenty** | Jeden PDF (`nke-10k-2023.pdf`) | **4 pliki PDF** połączone w jeden wektorowy magazyn |
+| **Zakres wiedzy** | Fakty z jednego raportu | Wiedza z wielu dokumentów (raporty 2023 i 2025 + historia wzrostu) |
+| **Strategia ładowania** | Jedno wywołanie `PDFLoader` | Pętla po tablicy `pdfPaths`, kumulacja dokumentów |
+| **Złożoność zapytania** | Pytanie do jednego dokumentu | **Pytanie do wielu dokumentów** obejmujące lata i tematy |
+| **Kluczowy koncept** | RAG przez middleware z jednym dokumentem | **Wielodokumentowy RAG** |
+
+### Wymagania
+
+- `OPENAI_API_KEY` w `.env` (dla embeddingów)
+- `ANTHROPIC_API_KEY` w `.env` (dla `claude-sonnet-4-6`)
+- Pliki PDF dostępne pod:
+  - `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+  - `/users/patrykksiazek/downloads/ProjectDocs/Nike-Inc-2025_10K.pdf`
+  - `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.pdf`
+
+### Uruchomienie
 
 ```bash
 npx tsx rag/ragagent3.ts
