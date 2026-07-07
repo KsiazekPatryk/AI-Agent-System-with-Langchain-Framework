@@ -26,6 +26,7 @@ console.log(allDocs)
 console.log(allDocs[0].pageContent)
 
 const textSplitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 200 })
+
 const allSplits = await textSplitter.splitDocuments(allDocs)
 console.log(allSplits)
 
