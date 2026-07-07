@@ -45,7 +45,7 @@ const embeddings = new OpenAIEmbeddings({ model: "text-embedding-3-large" })
 const vectorStore = await MemoryVectorStore.fromDocuments(allSplits, embeddings)
 
 
-const retrieveTool = tool(async({ query })=>
+const retrieve = tool(async({ query })=>
 {
  const retrievedDocs = await vectorStore.similaritySearch(query, 2);
  const docsContent = retrievedDocs.map((doc) => doc.pageContent).join("\n\n");
@@ -65,7 +65,7 @@ const mcpTools = await client.getTools();
 
 const agent  = createAgent({
     model: "claude-sonnet-4-5-20250929",
-    tools: [...mcpTools, retrieveTool] as any[],
+    tools: [...mcpTools, retrieve] as any[],
 })
 
 
