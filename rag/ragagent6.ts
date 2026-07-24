@@ -70,6 +70,6 @@ const agent  = createAgent({
 
 
 const response = await agent.invoke({
-    messages: [{ role: "user", content: "Get product with id 10" }],
+    messages: [{ role: "user", content: "Get product with id 28 and check if that product name match with our company offerings" }],
 });
 console.log(response)

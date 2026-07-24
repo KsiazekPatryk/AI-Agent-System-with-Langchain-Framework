@@ -526,6 +526,123 @@ npx tsx rag/ragagent3.ts
 
 ---
 
+## RAGAgent4
+
+A DOCX-based RAG pipeline that **loads a Word document, embeds its contents into a vector store, and answers questions by injecting retrieved context into the system prompt**.
+
+### How it works
+
+1. **Document loading** — `DocxLoader` reads the `nike-growth-story.docx` file.
+2. **Chunking** — `RecursiveCharacterTextSplitter` splits the document into chunks of `1000` characters with a `200`-character overlap.
+3. **Embeddings & vector store** — `OpenAIEmbeddings` with `text-embedding-3-large` embeds the chunks into a `MemoryVectorStore`.
+4. **RAG middleware** — `dynamicSystemPromptMiddleware` extracts the user's message, runs `similaritySearch(query, 2)`, and injects the top 2 retrieved chunks into the system prompt.
+5. **Agent** — `createAgent` uses `claude-sonnet-4-6` with no tools, relying entirely on retrieved DOCX context.
+6. The agent is invoked with: `"What are key highlights of Nike's growth story?"` and the full result is logged.
+
+### What RAGAgent4 adds over RAGAgent3
+
+| | RAGAgent3 | RAGAgent4 |
+|--|-----------|-----------|
+| **Document format** | Multiple PDFs | **Single DOCX** (`nike-growth-story.docx`) |
+| **Loader** | `PDFLoader` | **`DocxLoader`** |
+| **Knowledge scope** | Cross-document knowledge from several PDFs | Focused knowledge from one Word document |
+| **Retrieval source** | Merged vector store across multiple reports | Vector store built from one DOCX source |
+| **Key concept** | Multi-document PDF RAG | **DOCX-based RAG with dynamic prompt injection** |
+
+### Requirements
+
+- `OPENAI_API_KEY` environment variable set in `.env` (for embeddings)
+- `ANTHROPIC_API_KEY` environment variable set in `.env` (for `claude-sonnet-4-6`)
+- DOCX file available at `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.docx`
+
+### Run
+
+```bash
+npx tsx rag/ragagent4.ts
+```
+
+---
+
+## RAGAgent5
+
+A second DOCX-based RAG example that **currently mirrors RAGAgent4's implementation exactly**, using the same document-loading, embedding, retrieval, and prompt-injection flow.
+
+### How it works
+
+1. **Document loading** — `DocxLoader` reads the `nike-growth-story.docx` file.
+2. **Chunking** — `RecursiveCharacterTextSplitter` splits the document into chunks of `1000` characters with a `200`-character overlap.
+3. **Embeddings & vector store** — `OpenAIEmbeddings` with `text-embedding-3-large` embeds the chunks into a `MemoryVectorStore`.
+4. **RAG middleware** — `dynamicSystemPromptMiddleware` extracts the user's message, runs `similaritySearch(query, 2)`, and injects the top 2 retrieved chunks into the system prompt.
+5. **Agent** — `createAgent` uses `claude-sonnet-4-6` with no tools and answers solely from retrieved DOCX context.
+6. The agent is invoked with: `"What are key highlights of Nike's growth story?"` and the result is logged.
+
+### How RAGAgent5 differs from RAGAgent4
+
+| | RAGAgent4 | RAGAgent5 |
+|--|-----------|-----------|
+| **Implementation** | DOCX RAG pipeline | **Currently identical implementation** |
+| **Loader** | `DocxLoader` | `DocxLoader` |
+| **Retrieval strategy** | `similaritySearch(query, 2)` via middleware | Same |
+| **Model** | `claude-sonnet-4-6` | Same |
+| **Key concept** | DOCX-based RAG | **Parallel DOCX RAG example / staging variant** |
+
+### Requirements
+
+- `OPENAI_API_KEY` environment variable set in `.env` (for embeddings)
+- `ANTHROPIC_API_KEY` environment variable set in `.env` (for `claude-sonnet-4-6`)
+- DOCX file available at `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.docx`
+
+### Run
+
+```bash
+npx tsx rag/ragagent5.ts
+```
+
+---
+
+## RAGAgent6
+
+An agentic RAG example that **combines multi-document retrieval with MCP tools**, allowing the agent to query external systems and compare that live data against company knowledge stored in PDFs.
+
+### How it works
+
+1. **MCP client setup** — `MultiServerMCPClient` connects to an external `ecommerce` MCP server over `stdio` using a local Node entrypoint.
+2. **Document loading** — the pipeline loads multiple PDF files with `PDFLoader`, including the 2023 Nike report, the 2025 Nike report, and the Nike growth story document.
+3. **Chunking** — `RecursiveCharacterTextSplitter` splits all loaded pages into chunks of `1000` characters with a `200`-character overlap.
+4. **Embeddings & vector store** — `OpenAIEmbeddings` with `text-embedding-3-large` embeds all chunks into a shared `MemoryVectorStore`.
+5. **Retrieval tool** — a custom `retrieve` tool wraps `vectorStore.similaritySearch(query, 2)` so the agent can pull relevant PDF context on demand instead of injecting it through middleware.
+6. **External tools** — `client.getTools()` imports the MCP tools exposed by the ecommerce server and merges them with the local `retrieve` tool.
+7. **Agent** — `createAgent` uses `claude-sonnet-4-5-20250929` with both MCP tools and the RAG retrieval tool.
+8. The agent is invoked with: `"Get product with id 28 and check if that product name match with our company offerings"`, so it can fetch product data externally and verify alignment against Nike-related documents.
+
+### What RAGAgent6 adds over RAGAgent5
+
+| | RAGAgent5 | RAGAgent6 |
+|--|-----------|-----------|
+| **Retrieval integration** | Middleware injects context automatically | **Tool-based retrieval** via `retrieve` |
+| **External systems** | None | **MCP ecommerce server integration** |
+| **Knowledge sources** | One DOCX document | Multiple PDFs plus external MCP data |
+| **Agent tools** | No tools | MCP tools + custom RAG tool |
+| **Key concept** | DOCX RAG through middleware | **Agentic RAG with MCP orchestration** |
+
+### Requirements
+
+- `OPENAI_API_KEY` environment variable set in `.env` (for embeddings)
+- `ANTHROPIC_API_KEY` environment variable set in `.env` (for `claude-sonnet-4-5-20250929`)
+- PDF files available at:
+   - `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+   - `/users/patrykksiazek/downloads/ProjectDocs/Nike-Inc-2025_10K.pdf`
+   - `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.pdf`
+- Built MCP server available at `/Users/patrykksiazek/Downloads/mcp-ecommerce-crud/dist/mcp/server.js`
+
+### Run
+
+```bash
+npx tsx rag/ragagent6.ts
+```
+
+---
+
 ---
 
 # Opis projektu
@@ -985,6 +1102,123 @@ Wielodokumentowy potok RAG, który **ładuje wiele plików PDF, łączy je w jed
 
 ```bash
 npx tsx rag/ragagent3.ts
+```
+
+---
+
+## RAGAgent4
+
+Potok RAG oparty na DOCX, który **ładuje dokument Word, osadza jego treść w wektorowym magazynie danych i odpowiada na pytania przez wstrzyknięcie pobranego kontekstu do promptu systemowego**.
+
+### Jak działa
+
+1. **Ładowanie dokumentu** — `DocxLoader` wczytuje plik `nike-growth-story.docx`.
+2. **Fragmentacja** — `RecursiveCharacterTextSplitter` dzieli dokument na fragmenty po `1000` znaków z nakładaniem `200` znaków.
+3. **Embeddingi i wektorowy magazyn** — `OpenAIEmbeddings` z modelem `text-embedding-3-large` osadza fragmenty w `MemoryVectorStore`.
+4. **Middleware RAG** — `dynamicSystemPromptMiddleware` wyciąga wiadomość użytkownika, uruchamia `similaritySearch(query, 2)` i wstrzykuje 2 najtrafniejsze fragmenty do promptu systemowego.
+5. **Agent** — `createAgent` używa `claude-sonnet-4-6` bez narzędzi i opiera odpowiedź wyłącznie na pobranym kontekście z DOCX.
+6. Agent jest wywoływany z pytaniem: `"What are key highlights of Nike's growth story?"`, a pełny wynik jest logowany.
+
+### Co RAGAgent4 dodaje względem RAGAgent3
+
+| | RAGAgent3 | RAGAgent4 |
+|--|-----------|-----------|
+| **Format dokumentu** | Wiele plików PDF | **Pojedynczy DOCX** (`nike-growth-story.docx`) |
+| **Loader** | `PDFLoader` | **`DocxLoader`** |
+| **Zakres wiedzy** | Wiedza z kilku PDF-ów | Skoncentrowana wiedza z jednego dokumentu Word |
+| **Źródło retrievalu** | Połączony wektorowy magazyn wielu raportów | Wektorowy magazyn zbudowany z jednego pliku DOCX |
+| **Kluczowy koncept** | Wielodokumentowy PDF RAG | **RAG oparty na DOCX z dynamicznym wstrzykiwaniem promptu** |
+
+### Wymagania
+
+- `OPENAI_API_KEY` w `.env` (dla embeddingów)
+- `ANTHROPIC_API_KEY` w `.env` (dla `claude-sonnet-4-6`)
+- Plik DOCX dostępny pod `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.docx`
+
+### Uruchomienie
+
+```bash
+npx tsx rag/ragagent4.ts
+```
+
+---
+
+## RAGAgent5
+
+Drugi przykład RAG oparty na DOCX, który **aktualnie ma dokładnie taką samą implementację jak RAGAgent4** i używa tego samego przepływu ładowania dokumentu, embeddingów, retrievalu i wstrzykiwania kontekstu do promptu.
+
+### Jak działa
+
+1. **Ładowanie dokumentu** — `DocxLoader` wczytuje plik `nike-growth-story.docx`.
+2. **Fragmentacja** — `RecursiveCharacterTextSplitter` dzieli dokument na fragmenty po `1000` znaków z nakładaniem `200` znaków.
+3. **Embeddingi i wektorowy magazyn** — `OpenAIEmbeddings` z modelem `text-embedding-3-large` osadza fragmenty w `MemoryVectorStore`.
+4. **Middleware RAG** — `dynamicSystemPromptMiddleware` wyciąga wiadomość użytkownika, uruchamia `similaritySearch(query, 2)` i wstrzykuje 2 najtrafniejsze fragmenty do promptu systemowego.
+5. **Agent** — `createAgent` używa `claude-sonnet-4-6` bez narzędzi i odpowiada wyłącznie na bazie pobranego kontekstu z DOCX.
+6. Agent jest wywoływany z pytaniem: `"What are key highlights of Nike's growth story?"`, a wynik jest logowany.
+
+### Czym RAGAgent5 różni się od RAGAgent4
+
+| | RAGAgent4 | RAGAgent5 |
+|--|-----------|-----------|
+| **Implementacja** | Potok RAG dla DOCX | **Aktualnie identyczna implementacja** |
+| **Loader** | `DocxLoader` | `DocxLoader` |
+| **Strategia retrievalu** | `similaritySearch(query, 2)` przez middleware | Taka sama |
+| **Model** | `claude-sonnet-4-6` | Taki sam |
+| **Kluczowy koncept** | RAG oparty na DOCX | **Równoległy przykład / wariant roboczy DOCX RAG** |
+
+### Wymagania
+
+- `OPENAI_API_KEY` w `.env` (dla embeddingów)
+- `ANTHROPIC_API_KEY` w `.env` (dla `claude-sonnet-4-6`)
+- Plik DOCX dostępny pod `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.docx`
+
+### Uruchomienie
+
+```bash
+npx tsx rag/ragagent5.ts
+```
+
+---
+
+## RAGAgent6
+
+Przykład agentic RAG, który **łączy retrieval z wielu dokumentów z narzędziami MCP**, dzięki czemu agent może odpytywać zewnętrzne systemy i porównywać te dane z wiedzą firmową zapisaną w PDF-ach.
+
+### Jak działa
+
+1. **Konfiguracja klienta MCP** — `MultiServerMCPClient` łączy się z zewnętrznym serwerem `ecommerce` MCP przez `stdio`, używając lokalnego entrypointu Node.
+2. **Ładowanie dokumentów** — potok ładuje wiele plików PDF przez `PDFLoader`, w tym raport Nike 2023, raport Nike 2025 oraz dokument o historii wzrostu Nike.
+3. **Fragmentacja** — `RecursiveCharacterTextSplitter` dzieli wszystkie załadowane strony na fragmenty po `1000` znaków z nakładaniem `200`.
+4. **Embeddingi i wektorowy magazyn** — `OpenAIEmbeddings` z modelem `text-embedding-3-large` osadza wszystkie fragmenty we wspólnym `MemoryVectorStore`.
+5. **Narzędzie retrieval** — własne narzędzie `retrieve` opakowuje `vectorStore.similaritySearch(query, 2)`, dzięki czemu agent może pobierać kontekst z PDF-ów na żądanie zamiast przez middleware.
+6. **Zewnętrzne narzędzia** — `client.getTools()` importuje narzędzia MCP wystawione przez serwer ecommerce i łączy je z lokalnym narzędziem `retrieve`.
+7. **Agent** — `createAgent` używa `claude-sonnet-4-5-20250929` wraz z narzędziami MCP i narzędziem retrieval RAG.
+8. Agent jest wywoływany z pytaniem: `"Get product with id 28 and check if that product name match with our company offerings"`, aby pobrać dane produktu z systemu zewnętrznego i porównać je z dokumentami związanymi z Nike.
+
+### Co RAGAgent6 dodaje względem RAGAgent5
+
+| | RAGAgent5 | RAGAgent6 |
+|--|-----------|-----------|
+| **Integracja retrievalu** | Middleware automatycznie wstrzykuje kontekst | **Retrieval jako narzędzie** `retrieve` |
+| **Systemy zewnętrzne** | Brak | **Integracja z serwerem MCP ecommerce** |
+| **Źródła wiedzy** | Jeden dokument DOCX | Wiele PDF-ów plus zewnętrzne dane MCP |
+| **Narzędzia agenta** | Brak narzędzi | Narzędzia MCP + własne narzędzie RAG |
+| **Kluczowy koncept** | DOCX RAG przez middleware | **Agentic RAG z orkiestracją MCP** |
+
+### Wymagania
+
+- `OPENAI_API_KEY` w `.env` (dla embeddingów)
+- `ANTHROPIC_API_KEY` w `.env` (dla `claude-sonnet-4-5-20250929`)
+- Pliki PDF dostępne pod:
+   - `/users/patrykksiazek/downloads/ProjectDocs/nke-10k-2023.pdf`
+   - `/users/patrykksiazek/downloads/ProjectDocs/Nike-Inc-2025_10K.pdf`
+   - `/users/patrykksiazek/downloads/ProjectDocs/nike-growth-story.pdf`
+- Zbudowany serwer MCP dostępny pod `/Users/patrykksiazek/Downloads/mcp-ecommerce-crud/dist/mcp/server.js`
+
+### Uruchomienie
+
+```bash
+npx tsx rag/ragagent6.ts
 ```
 
 
