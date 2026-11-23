@@ -70,7 +70,8 @@ A progressive, hands-on implementation of AI agent patterns using the **LangChai
 
 ### 13. LangGraph Deployment
 - `langgraph.json`
-- `ragagentServer.ts`
+- `rag/ragagentsServer.ts` graph entry point
+- `npm run dev` starts the LangGraph development server
 
 ### 14. Environment Management
 - API keys & `.env` usage
@@ -643,6 +644,44 @@ npx tsx rag/ragagent6.ts
 
 ---
 
+## RAGAgent7 and LangGraph Server
+
+An agentic RAG workflow that combines retrieval from multiple PDF documents with tools provided by an external e-commerce MCP server. The same agent is exposed as a LangGraph graph through `rag/ragagentsServer.ts`.
+
+### How it works
+
+1. Loads the configured PDF files with `PDFLoader`.
+2. Splits their contents into chunks of `1000` characters with `200` characters of overlap.
+3. Creates embeddings with OpenAI's `text-embedding-3-large` model and stores them in an in-memory `MemoryVectorStore`.
+4. Provides a `retrieve` tool that searches for the 2 most relevant document chunks.
+5. Connects to the e-commerce MCP server over `stdio` and makes its tools available to the agent.
+6. Creates a Claude Sonnet agent with both the MCP tools and PDF retrieval.
+7. Exports the agent as the `graph` used by the `rag_agent` entry in `langgraph.json`.
+
+### Requirements and configuration
+
+- Node.js and npm
+- `OPENAI_API_KEY` for embeddings
+- `ANTHROPIC_API_KEY` for the Claude model
+- The configured PDF documents and a built e-commerce MCP server
+- A `.env` file for environment variables (the LangGraph configuration loads `.env`)
+
+The PDF paths and MCP server entry point are currently local paths defined in `rag/ragagent7.ts` and `rag/ragagentsServer.ts`. Update them to match your environment before running the agent.
+
+### Run the agent directly
+
+```bash
+npx tsx rag/ragagent7.ts
+```
+
+### Run with LangGraph
+
+```bash
+npm run dev
+```
+
+The `langgraph.json` configuration exposes the graph under the name `rag_agent`.
+
 ---
 
 # Opis projektu
@@ -719,7 +758,8 @@ Stopniowa, praktyczna implementacja wzorców agentów AI z wykorzystaniem framew
 
 ### 13. Wdrożenie LangGraph
 - `langgraph.json`
-- `ragagentServer.ts`
+- `rag/ragagentsServer.ts` jako punkt wejścia grafu
+- `npm run dev` uruchamia serwer deweloperski LangGraph
 
 ### 14. Zarządzanie środowiskiem
 - Klucze API i użycie `.env`
@@ -1221,4 +1261,43 @@ Przykład agentic RAG, który **łączy retrieval z wielu dokumentów z narzędz
 npx tsx rag/ragagent6.ts
 ```
 
+---
+
+## RAGAgent7 i serwer LangGraph
+
+Przepływ agentic RAG łączący wyszukiwanie w wielu dokumentach PDF z narzędziami udostępnianymi przez zewnętrzny serwer e-commerce MCP. Ten sam agent jest udostępniony jako graf LangGraph przez `rag/ragagentsServer.ts`.
+
+### Jak działa
+
+1. Wczytuje skonfigurowane pliki PDF przez `PDFLoader`.
+2. Dzieli treść na fragmenty po `1000` znaków z nakładaniem `200` znaków.
+3. Tworzy embeddingi modelem OpenAI `text-embedding-3-large` i przechowuje je w pamięciowym `MemoryVectorStore`.
+4. Udostępnia narzędzie `retrieve`, które wyszukuje 2 najbardziej trafne fragmenty dokumentów.
+5. Łączy się przez `stdio` z serwerem e-commerce MCP i udostępnia agentowi jego narzędzia.
+6. Tworzy agenta Claude Sonnet z narzędziami MCP oraz retrievalem z PDF-ów.
+7. Eksportuje agenta jako `graph`, używany przez wpis `rag_agent` w `langgraph.json`.
+
+### Wymagania i konfiguracja
+
+- Node.js i npm
+- `OPENAI_API_KEY` do tworzenia embeddingów
+- `ANTHROPIC_API_KEY` dla modelu Claude
+- Skonfigurowane dokumenty PDF oraz zbudowany serwer e-commerce MCP
+- Plik `.env` ze zmiennymi środowiskowymi (konfiguracja LangGraph ładuje `.env`)
+
+Ścieżki do plików PDF i punktu wejścia serwera MCP są obecnie lokalnymi ścieżkami zapisanymi w `rag/ragagent7.ts` i `rag/ragagentsServer.ts`. Przed uruchomieniem dostosuj je do swojego środowiska.
+
+### Bezpośrednie uruchomienie agenta
+
+```bash
+npx tsx rag/ragagent7.ts
+```
+
+### Uruchomienie przez LangGraph
+
+```bash
+npm run dev
+```
+
+Konfiguracja `langgraph.json` udostępnia graf pod nazwą `rag_agent`.
 
